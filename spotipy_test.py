@@ -1,12 +1,12 @@
 import re
-
+import config
 import spotipy as sp
 import spotify_query
 from client_info import client_id, client_secret
 
 scope = 'user-library-read'
 
-cl = sp.SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
+cl = sp.SpotifyClientCredentials(client_id=config.api_key, client_secret=config.api_secret)
 
 auth_token = cl.get_access_token()
 
