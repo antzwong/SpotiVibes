@@ -1,22 +1,51 @@
 import re
+import config
+import spotipy
+import json
+from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 
-import spotipy as sp
-import spotify_query
-from client_info import client_id, client_secret
 
-scope = 'user-library-read'
 
-cl = sp.SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
+#cl = sp.SpotifyClientCredentials(client_id=config.api_key, client_secret=config.api_secret)
 
-auth_token = cl.get_access_token()
 
-spotify = sp.Spotify(auth=auth_token)
+#auth_token = cl.get_access_token()
 
-query = spotify.search(q="track:alright artist:kendrick lamar", type='track', limit=10)
+#spotify = sp.Spotify(auth=auth_token)
 
-obj = query['tracks']  # this is the body of the query results
+#query = spotify.search(q="track:alright artist:kendrick lamar", type='track', limit=10)
 
-items = obj['items']  # this is a list of dictionaries that store the information of each returned item from the query
+#obj = query['tracks']  # this is the body of the query results
+
+#items = obj['items']  # this is a list of dictionaries that store the information of each returned item from the query
+def show_tracks(results):
+    for i, item in enumerate(results['items']):
+        track = item['track']
+        print(
+            "   %d %32.32s %s" %
+            (i, track['artists'][0]['name'], track['name']))
+
+            
+if __name__ == '__main__':
+    
+    
+    scope = 'playlist-read-private'
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope, username = 'fanafu'))
+
+    # return a json of all user playlists
+    playlists = sp.current_user_playlists()
+
+    # finds the URIs for the playlist of user
+    playlist_uris = []
+    for playlist in playlists['items']:
+        playlist_uris.append(playlist['uri'])
+
+    # finds all tracks inside a user's playlist
+    #results = []
+    #for playlist_uri in playlist_uris:
+    results = sp.playlist_tracks(playlist_uris[1])
+    print(json.dumps(results))    
+    
 
 '''
 TRACK QUERIES:
@@ -38,7 +67,7 @@ Each item dictionary contains the following keys:
     16. track_number: on the album, where is this track sequenced?
     17. type: object type, should be 'track'
     18. uri: Spotify URI for the track
-'''
+
 
 for item in items:
     print(item)
@@ -100,3 +129,4 @@ for f in feat_dict:
     print("-------------------------")
 
 print(spq.search_for_song("i dont know","drake"))
+'''
