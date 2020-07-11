@@ -2,17 +2,10 @@ import re
 import config
 import spotipy
 import json
+import typing
+import random
+from typing import List, Dict
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
-
-class my_dictionary(dict):  
-  
-    # __init__ function  
-    def __init__(self):  
-        self = dict()  
-          
-    # Function to add key:value  
-    def add(self, key, value):  
-        self[key] = value  
 
 #cl = sp.SpotifyClientCredentials(client_id=config.api_key, client_secret=config.api_secret)
 
@@ -26,6 +19,13 @@ class my_dictionary(dict):
 #obj = query['tracks']  # this is the body of the query results
 
 #items = obj['items']  # this is a list of dictionaries that store the information of each returned item from the query
+
+def batch(iterable, n=1):
+    l = len(iterable)
+    for ndx in range(0, l, n):
+        yield iterable[ndx:min(ndx + n, l)]
+
+
 def show_tracks(results):
     for i, item in enumerate(results['items']):
         track = item['track']
@@ -33,17 +33,12 @@ def show_tracks(results):
             "   %d %32.32s %s" %
             (i, track['artists'][0]['name'], track['name']))
 
-            
-if __name__ == '__main__':
+def find_tracks_from_playlists(sp: object) -> List:
     
-    
-    scope = 'playlist-read-private'
-    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope, username = 'fanafu'))
-
     # return a json of all user playlists
     playlists = sp.current_user_playlists()
 
-    # finds the URIs for the playlist of user
+    # finds the URIs for the playlists of user
     playlist_uris = []
     for playlist in playlists['items']:
         playlist_uris.append(playlist['uri'])
@@ -55,11 +50,35 @@ if __name__ == '__main__':
         for track in playlist_tracks['items']:
             tracks.append(track['track']['uri'])
     
-    track_dict = {} # maybe try a another one where tracks are batched queryed 
+    track_dict = {} # maybe try a another one where tracks are batch queryed 
+    '''
     for track in tracks:
         track_feature = sp.audio_features(track)
         track_dict[track] = track_feature
-    print(track_dict.copy())
+    '''
+    for track in batch(tracks, n = 100):
+        track_feature = sp.audio_features(track)
+        for feature in track_feature:
+            track_dict[feature['uri']] = feature
+
+    return track_dict
+if __name__ == '__main__':
+    
+    
+    scope = 'playlist-read-private user-modify-playback-state'
+    username = 'fanafu'
+    emotion = 'I want to be happy'
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope, username = username))
+
+    track_dict = find_tracks_from_playlists(sp)
+
+    #scope = 'user-modify-playback-state'
+    #sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope, username = username))
+    for key, value in sorted(track_dict.items(), key=lambda x: random.random()):
+        if(value['valence'] > 0.7 and value['energy'] > 0.7):
+            sp.add_to_queue(key)
+            break
+      
     
 
 '''
