@@ -4,7 +4,15 @@ import spotipy
 import json
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 
-
+class my_dictionary(dict):  
+  
+    # __init__ function  
+    def __init__(self):  
+        self = dict()  
+          
+    # Function to add key:value  
+    def add(self, key, value):  
+        self[key] = value  
 
 #cl = sp.SpotifyClientCredentials(client_id=config.api_key, client_secret=config.api_secret)
 
@@ -41,10 +49,17 @@ if __name__ == '__main__':
         playlist_uris.append(playlist['uri'])
 
     # finds all tracks inside a user's playlist
-    #results = []
-    #for playlist_uri in playlist_uris:
-    results = sp.playlist_tracks(playlist_uris[1])
-    print(json.dumps(results))    
+    tracks = []
+    for playlist_uri in playlist_uris:
+        playlist_tracks = sp.playlist_tracks(playlist_uri, limit = 100)
+        for track in playlist_tracks['items']:
+            tracks.append(track['track']['uri'])
+    
+    track_dict = {} # maybe try a another one where tracks are batched queryed 
+    for track in tracks:
+        track_feature = sp.audio_features(track)
+        track_dict[track] = track_feature
+    print(track_dict.copy())
     
 
 '''
