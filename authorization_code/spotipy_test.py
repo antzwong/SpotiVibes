@@ -89,7 +89,7 @@ if __name__ == '__main__':
     
     
     scope = 'playlist-read-private user-modify-playback-state'
-    username = 'tmqeyde427wuvgrv4o3j59s8g'
+    username = 'fanafu'
 
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope, username = username))
 
