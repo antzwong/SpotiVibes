@@ -21,10 +21,11 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-@app.route("/emotion", methods=["GET", "POST"])
+@app.route("/callback", methods=["GET", "POST"])
 
 def emotion():
     if request.method == "POST":
+        print("****8")
         emotion = request.form.get("emotion")
         return emotion
 
@@ -68,7 +69,7 @@ def find_tracks_from_playlists(sp: object) -> List:
 
 
 def is_pos_senti(text_content: str) -> bool:
-    client = language_v1.LanguageServiceClient.from_service_account_json("google_api.json")
+    client = language_v1.LanguageServiceClient.from_service_account_json("../google_api.json")
 
     type_ = enums.Document.Type.PLAIN_TEXT
 
@@ -96,26 +97,31 @@ if __name__ == '__main__':
     happy_list = ['happy', 'excited']
     dancey_list = ['dance', 'hype']
 
-    emotion = emotion() 
+    emotion=input("Hi, I'm called SpotiVibes, the app that queues up songs to match your feelings. How do you feel today? ") 
+    
     # spotify must be playing from an active device for this to work
     if any(term in emotion for term in happy_list):
+        print('Glad to hear youre feeling happy today!')
         for key, value in sorted(track_dict.items(), key=lambda x: random.random()):
             if(value['valence'] > 0.7 and value['energy'] > 0.7):
                 sp.add_to_queue(key)
                 break
     elif any(term in emotion for term in dancey_list):
+        print('I can tell youre pretty excited today. Lets dance owo')
         for key, value in sorted(track_dict.items(), key=lambda x: random.random()):
             if(value['danceability'] > 0.7 and value['energy'] > 0.7):
                 sp.add_to_queue(key)
                 break
     elif(is_pos_senti(emotion)):
+        print('Glad to hear youre feeling happy today!')
         for key, value in sorted(track_dict.items(), key=lambda x: random.random()):
             if(value['valence'] > 0.7 and value['energy'] > 0.7):
                 sp.add_to_queue(key)
                 break
     else:
+        print('Okay, heres a calming song to help soothe your day')
         for key, value in sorted(track_dict.items(), key=lambda x: random.random()):
-            if(value['valence'] < 0.3 and value['energy'] < 0.3):
+            if(value['valence'] < 0.3 and value['energy'] < 0.3 and value['tempo']<120):
                 sp.add_to_queue(key)
                 break
     sp.next_track()
