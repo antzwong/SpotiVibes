@@ -3,6 +3,7 @@
 venv/
 **/.ipynb_checkpoints/
 
+google_api.json
 .cache-fanafu
 
 config.py

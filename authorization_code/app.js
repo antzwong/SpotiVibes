@@ -17,8 +17,8 @@ var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 
 
-let client_id = process.env.ID; // Your client id
-let client_secret = process.env.KEY; // Your secret
+let client_id = process.env.api_key; // Your client id
+let client_secret = process.env.api_secret; // Your secret
 let redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
 
 /**
