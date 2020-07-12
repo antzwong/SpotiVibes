@@ -1,35 +1,21 @@
-# Spotify Accounts Authentication Examples
+# Spotify Playlist Rediscovery
 
-This project contains basic demos showing the different OAuth 2.0 flows for [authenticating against the Spotify Web API](https://developer.spotify.com/web-api/authorization-guide/).
+This project helps people curate their playlists by rediscovering songs from all their playlists and picks those which best fit their mood.
 
-These examples cover:
+## Description
 
-* Authorization Code flow
-* Client Credentials flow
-* Implicit Grant flow
+Oftentimes our playlists remain static and overtime we'll forget about songs at the bottom of our playlists because we never get to them. Our application asks users for their mood, retrieves all the songs in their spotify playlists, and picks the ones which will best fit their mood. 
+
 
 ## Installation
 
-These examples run on Node.js. On [its website](http://www.nodejs.org/download/) you can find instructions on how to install it. You can also follow [this gist](https://gist.github.com/isaacs/579814) for a quick and easy way to install Node.js and npm.
+Clone the repository onto your local machine. You will need to create an application on spotify [here](https://developer.spotify.com/dashboard/) to retrieve your credentials. While in the developer dashboard, in the settings, set the callback URL to http://localhost:8888/callback. In SpotifyUpdater>authorization_code>app.js, input your credentials into the appropriate fields at the top of the file. Next, navigate to the app.js folder and run 
 
-Once installed, clone the repository and install its dependencies running:
+$node app.js
 
-    $ npm install
+This will start the application which you can access by going to localhost:8888
 
-### Using your own credentials
-You will need to register your app and get your own credentials from the Spotify for Developers Dashboard.
 
-To do so, go to [your Spotify for Developers Dashboard](https://beta.developer.spotify.com/dashboard) and create your application. For the examples, we registered these Redirect URIs:
+## Technicals
 
-* http://localhost:8888 (needed for the implicit grant flow)
-* http://localhost:8888/callback
-
-Once you have created your app, replace the `client_id`, `redirect_uri` and `client_secret` in the examples with the ones you get from My Applications.
-
-## Running the examples
-In order to run the different examples, open the folder with the name of the flow you want to try out, and run its `app.js` file. For instance, to run the Authorization Code example do:
-
-    $ cd authorization_code
-    $ node app.js
-
-Then, open `http://localhost:8888` in a browser.
+Developed using Node.js, Python (flask), HTML, GCP- Natural Language Client Library. 
