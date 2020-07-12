@@ -63,7 +63,6 @@ app.get('/login', function(req, res) {
     }));
 });
 
-var bodyData = 
 
 app.get('/callback', function(req, res) {
 
@@ -109,10 +108,7 @@ app.get('/callback', function(req, res) {
         // use the access token to access the Spotify Web API
         request.get(options, function(error, response, body) {
           console.log(body); //body holds all the info that goes on the page in JSON format
-          //const obj = JSON.parse(body);
-          //const jsonString = JSON.stringify(body);
-          console.log("here is the JSON String!");
-          console.log(jsonString);
+          var userID = body.id;
         });
 
         // we can also pass the token to the browser to make requests from there
@@ -121,6 +117,7 @@ app.get('/callback', function(req, res) {
             access_token: access_token,
             refresh_token: refresh_token
           }));
+
       } else {
         res.redirect('/#' +
           querystring.stringify({
