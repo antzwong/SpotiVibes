@@ -1,14 +1,15 @@
 import re
 import config
-import spotipy
 import json
 import typing
 import random
 from google.cloud import language_v1
 from google.cloud.language_v1 import enums
 from typing import List, Dict
+import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 import os
+from tempfile import mkdtemp
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
 from flask_session import Session
 
@@ -25,6 +26,7 @@ Session(app)
 def emotion():
     if request.method == "POST":
         emotion = request.form.get("emotion")
+        return emotion
 
 def batch(iterable, n=1):
     l = len(iterable)
@@ -57,11 +59,6 @@ def find_tracks_from_playlists(sp: object) -> List:
             tracks.append(track['track']['uri'])
     
     track_dict = {} # maybe try a another one where tracks are batch queryed 
-    '''
-    for track in tracks:
-        track_feature = sp.audio_features(track)
-        track_dict[track] = track_feature
-    '''
     for track in batch(tracks, n = 100):
         track_feature = sp.audio_features(track)
         for feature in track_feature:
@@ -71,36 +68,16 @@ def find_tracks_from_playlists(sp: object) -> List:
 
 
 def is_pos_senti(text_content: str) -> bool:
-    """
-    Analyzing Sentiment in a String
-
-    Args:
-      text_content The text content to analyze
-    """
     client = language_v1.LanguageServiceClient.from_service_account_json("google_api.json")
 
-    # text_content = 'I am so happy and joyful.'
-
-    # Available types: PLAIN_TEXT, HTML
     type_ = enums.Document.Type.PLAIN_TEXT
 
-    # Optional. If not specified, the language is automatically detected.
-    # For list of supported languages:
-    # https://cloud.google.com/natural-language/docs/languages
     language = "en"
     document = {"content": text_content, "type": type_, "language": language}
 
-    # Available values: NONE, UTF8, UTF16, UTF32
     encoding_type = enums.EncodingType.UTF8
 
     response = client.analyze_sentiment(document, encoding_type=encoding_type)
-    # Get overall sentiment of the input document
-    print(u"Document sentiment score: {}".format(response.document_sentiment.score))
-    print(
-        u"Document sentiment magnitude: {}".format(
-            response.document_sentiment.magnitude
-        )
-    )
     if(response.document_sentiment.score > 0):
         return True
     else:
@@ -112,14 +89,26 @@ if __name__ == '__main__':
     
     scope = 'playlist-read-private user-modify-playback-state'
     username = 'tmqeyde427wuvgrv4o3j59s8g'
-    emotion = 'Im feeling sad'
+
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope, username = username))
 
     track_dict = find_tracks_from_playlists(sp)
+    happy_list = ['happy', 'excited']
+    dancey_list = ['dance', 'hype']
 
-    #scope = 'user-modify-playback-state'
-    #sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope, username = username))
-    if(is_pos_senti(emotion)):
+    emotion = emotion() 
+    # spotify must be playing from an active device for this to work
+    if any(term in emotion for term in happy_list):
+        for key, value in sorted(track_dict.items(), key=lambda x: random.random()):
+            if(value['valence'] > 0.7 and value['energy'] > 0.7):
+                sp.add_to_queue(key)
+                break
+    elif any(term in emotion for term in dancey_list):
+        for key, value in sorted(track_dict.items(), key=lambda x: random.random()):
+            if(value['danceability'] > 0.7 and value['energy'] > 0.7):
+                sp.add_to_queue(key)
+                break
+    elif(is_pos_senti(emotion)):
         for key, value in sorted(track_dict.items(), key=lambda x: random.random()):
             if(value['valence'] > 0.7 and value['energy'] > 0.7):
                 sp.add_to_queue(key)
