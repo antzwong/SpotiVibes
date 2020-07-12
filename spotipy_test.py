@@ -6,6 +6,23 @@ import typing
 import random
 from typing import List, Dict
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
+import os
+from flask import Flask, flash, jsonify, redirect, render_template, request, session
+from flask_session import Session
+
+app = Flask(__name__)
+
+# Configure session to use filesystem (instead of signed cookies)
+app.config["SESSION_FILE_DIR"] = mkdtemp()
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
+@app.route("/emotion", methods=["GET", "POST"])
+
+def emotion():
+    if request.method == "POST":
+        emotion = request.form.get("emotion")
 
 #cl = sp.SpotifyClientCredentials(client_id=config.api_key, client_secret=config.api_secret)
 
